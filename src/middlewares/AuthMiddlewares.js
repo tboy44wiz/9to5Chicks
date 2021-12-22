@@ -1,0 +1,77 @@
+import database from '../database/models';
+import Response from '../helpers/Response';
+import userStatus from '../helpers/userStatus';
+
+const { User } = database;
+
+/** Auth Middleware Class */
+class AuthMiddlewares {
+  /**
+   * @param {object} req - the request
+   * @param {object} res - the response
+   * @param {function} next
+   * @returns {object} - error
+   */
+  // static async signUpValidator(req, res, next) {
+  //   const { companyCode } = req.body;
+  //   const company = await findCompany(companyCode);
+  //   if (!company) {
+  //     const response = new Response(
+  //       false,
+  //       404,
+  //       `Company with ${companyCode} does not exist, confirm company code`
+  //     );
+  //     return res.status(response.code).json(response);
+  //   }
+
+  //   const { id } = company;
+  //   req.data = id;
+  //   return next();
+  // }
+
+  /**
+   *
+   * @param {object} req request object
+   * @param {object} res response object
+   * @param {function} next
+   * @returns {void}
+   */
+  static async checkExistingUser(req, res, next) {
+    const { email } = req.body;
+    const existingUser = await User.findOne({ where: { email } });
+
+    if (existingUser) {
+      const response = new Response(
+        false,
+        409,
+        'User with email address already exist'
+      );
+      return res.status(response.code).json(response);
+    }
+
+    return next();
+  }
+
+  /**
+   *
+   * @param {object} req Request
+   * @param {object} res Response
+   * @param {object} next Next
+   * @returns {function} Next middleware
+   */
+  static isUserVerified(req, res, next) {
+    const { payload: { status } } = req.payload;
+    const checkUserStatus = userStatus(status);
+    if (checkUserStatus !== true) {
+      const response = new Response(
+        false,
+        403,
+        checkUserStatus
+      );
+      return res.status(response.code).json(response);
+    }
+    return next();
+  }
+}
+
+export default AuthMiddlewares;

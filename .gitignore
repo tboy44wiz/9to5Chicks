@@ -1,0 +1,14 @@
+node_modules
+.env
+build
+
+# public/uploads/
+
+public/uploads/*
+!public/uploads/important.jpg
+
+
+!src/assets2/fonts/webfonts/fa-solid-900d41d.eot
+!src/assets2/fonts/webfonts/fa-solid-900.ttf
+
+.idea/
